@@ -74,15 +74,41 @@ void shaker_sort(int array[], const int length) {
      } while (!sorted);
 }
 
+vector<string> mystery(string &values){
+	string v2;
+	sort(values.begin(), values.end());
+	return mystery_helper(values, v2);
+}
 
+vector<string> mystery_helper(string &v1, string&v2){
+	vector<string> temp;
+	if(v1.size() == 0){
+		temp.push_back(v2);
+		return temp;
+	}
+
+	for(size_t i = 0; i < v1.size(); ++i){
+		char choice = v1[i];
+		v1.erase(v1.begin() + i);
+		v2.push_back(choice);
+
+		vector<string> ret_val;
+		retu_val = mystery_helper(v1, v2);
+		temp.insert(temp.end(), ret_val.begin(), ret_val.end());
+
+		v1.insert(v1.begin() + i, choice);
+		v2.erase(v2.begin() + v2.size() - 1);
+	}
+	return temp;
+}
 
 int main(int argc, char *const argv[]){
 //	int n;
 //	istringstream iss;
 //	iss.str(argv[1]);
 //	iss >> n;
-	int bum[5] =  {2,1,9,7,6,};
-	shaker_sort(bum, 5);
+	string bum = "William";
+	mystery(bum);
 
 return 0;
 
