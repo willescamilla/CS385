@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Name        : rbtree.h
- * Author      : 
+ * Author      : William Escamilla & Danielle Faustino
  * Version     : 1.0
- * Date        : 
+ * Date        : 11/20/2020
  * Description : Implementation of red-black tree.
- * Pledge      :
+ * Pledge      : I pledge my honor that I have abided by the Stevens Honor System.
  ******************************************************************************/
 #ifndef RBTREE_H_
 #define RBTREE_H_
@@ -228,7 +228,9 @@ public:
 		// TODO
 		Node<K, V> *z = new Node<K, V>(key, key_value.second);
 		if (find(key) != end()) {
-			tree_exception("Warning: Attempt to insert duplicate key");
+			std::stringstream ss;
+			ss << "Attempt to insert duplicate key '" << key << "'.";
+			throw tree_exception(ss.str());
 			return;
 		}
 		while (x != nullptr) {
@@ -304,8 +306,7 @@ public:
 	 * pass through the root.
 	 */
 	size_t diameter() const {
-		// TODO
-		return 0;
+		return diameter(root_);
 	}
 
 	/**
@@ -393,12 +394,12 @@ private:
 	 */
 	void delete_tree(Node<K, V> *n) {
 		if (n == nullptr) {
-			return;
-		}
-		delete_tree(n->left);
-		delete_tree(n->right);
+		 return;
+		 }
+		 delete_tree(n->left);
+		 delete_tree(n->right);
 
-		delete n;
+		 delete n;
 	}
 
 	/**
@@ -509,7 +510,6 @@ private:
 		int leftHeight = height(node->left);
 		int rightHeight = height(node->right);
 		return std::max(leftHeight, rightHeight) + 1;
-
 	}
 
 	/**
@@ -518,10 +518,10 @@ private:
 	 */
 	size_t leaf_count(Node<K, V> *node) const {
 		size_t count = 0;
-		if(node == nullptr){
+		if (node == nullptr) {
 			return 0;
 		}
-		if(node->left == nullptr && node->right == nullptr){
+		if (node->left == nullptr && node->right == nullptr) {
 			return 1;
 		}
 		count += leaf_count(node->left);
@@ -536,20 +536,29 @@ private:
 	 * An internal node has at least one child.
 	 */
 	size_t internal_node_count(Node<K, V> *node) const {
-		//return size_ - leaf_count(node);
-		// Needs to start at node
-		return 0;
+		size_t count = 0;
+
+		if (node == nullptr
+				|| (node->left == nullptr && node->right == nullptr)) {
+			return 0;
+		}
+
+		count++;
+		count += internal_node_count(node->left);
+		count += internal_node_count(node->right);
+
+		return count;
 	}
 
 	/**
 	 * Helper method to assist in the computation of tree diameter.
 	 */
 	int diameter(Node<K, V> *node) const {
-		if(node == nullptr){
+		if (node == nullptr) {
 			return 0;
 		}
-		int leftHeight = height(node->left);
-		int rightHeight = height(node->right);
+		int leftHeight = height(node->left) + 1;
+		int rightHeight = height(node->right) + 1;
 
 		int leftDiam = diameter(node->left);
 		int rightDiam = diameter(node->right);
@@ -565,7 +574,17 @@ private:
 	 * Width is defined as the number of nodes residing at a level.
 	 */
 	size_t width(Node<K, V> *node, size_t level) const {
-		return 0;
+		size_t levelWidth = 0;
+		if (level == 0 && node != nullptr) {
+			return 1;
+		} else if (node == nullptr) {
+			return 0;
+		}
+
+		levelWidth += width(node->left, level - 1);
+		levelWidth += width(node->right, level - 1);
+
+		return levelWidth;
 	}
 
 	size_t null_count() const {
@@ -576,8 +595,16 @@ private:
 	 * Returns the count of null nodes in the red-black tree starting at node.
 	 */
 	size_t null_count(Node<K, V> *node) const {
-// TODO
-		return 0;
+		size_t nullCount = 0;
+
+		if (node == nullptr) {
+			return 1;
+		}
+
+		nullCount += null_count(node->left);
+		nullCount += null_count(node->right);
+
+		return nullCount;
 	}
 
 	size_t sum_levels() const {
@@ -596,8 +623,14 @@ private:
 	 * has sum 0 + 2(1) + 2 = 4.
 	 */
 	size_t sum_levels(Node<K, V> *node, size_t level) const {
-// TODO
-		return 0;
+		size_t sum = 0;
+		if (node == nullptr) {
+			return 0;
+		}
+		sum += sum_levels(node->left, level + 1);
+		sum += sum_levels(node->right, level + 1);
+
+		return sum + level;
 	}
 
 	size_t sum_null_levels() const {
@@ -618,8 +651,15 @@ private:
 	 * has sum 3(2) + 2(3) = 12.
 	 */
 	size_t sum_null_levels(Node<K, V> *node, size_t level) const {
-// TODO
-		return 0;
+		size_t sum = 0;
+		if (node == nullptr) {
+			return level;
+		}
+
+		sum += sum_null_levels(node->left, level + 1);
+		sum += sum_null_levels(node->right, level + 1);
+		return sum;
+
 	}
 };
 
